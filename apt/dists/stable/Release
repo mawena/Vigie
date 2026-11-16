@@ -1,7 +1,7 @@
 Architectures: all amd64
 Codename: stable
 Components: main
-Date: Mon, 16 Nov 2026 23:27:54 +0000
+Date: Mon, 16 Nov 2026 23:30:54 +0000
 Description: Vigie, surveillance légère et alertes
 Label: Vigie
 Origin: Vigie
@@ -9,20 +9,20 @@ Suite: stable
 MD5Sum:
  d41d8cd98f00b204e9800998ecf8427e                0 main/binary-all/Packages
  4a4dd3598707603b3f76a2378a4504aa               20 main/binary-all/Packages.gz
- 5b706ab987dc1e6384c9ac04bf2e214d             2032 main/binary-amd64/Packages
- bad2d36c08f5f2374e2ee28ef362e2c7              841 main/binary-amd64/Packages.gz
+ 509b09cdec1ef91d842cb7efb70e4701             3048 main/binary-amd64/Packages
+ acfd8f313b04a0918de03900af3f0a1c              963 main/binary-amd64/Packages.gz
 SHA1:
  da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-all/Packages
  a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/binary-all/Packages.gz
- dacf1c190cb537c907c91232a816d2e1ceac9b1a             2032 main/binary-amd64/Packages
- a1b56bfce47b170200c5e94e54fed7d0728969b9              841 main/binary-amd64/Packages.gz
+ 6ef1a6ef5a44f8e87b6fde82166e8cdfea7f3d39             3048 main/binary-amd64/Packages
+ f46567e957ba4e924a98868f816a7afdf05ac8e9              963 main/binary-amd64/Packages.gz
 SHA256:
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-all/Packages
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/binary-all/Packages.gz
- 3bcdc9288f29def76b47dcb190ccac154629b9ae564f9c7bb254b59660e7e153             2032 main/binary-amd64/Packages
- 629c5f2c51eaa590ac6ce0fd2ccc324d10bea7ff11ebefac8c5de7326ce06651              841 main/binary-amd64/Packages.gz
+ 463affd29d25133f2784d0947696390e596faca889648af29ec53e884c3019bf             3048 main/binary-amd64/Packages
+ 21e9fb651074a11e05805d361a3df59b24baa59e632242466d31cd93b14452cd              963 main/binary-amd64/Packages.gz
 SHA512:
  cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e                0 main/binary-all/Packages
  1b46b9b08d5b338be9d732a1724795b2eab63daffde377218727c90857b79fe6a47bceed495117fcde60f7339812ef75ef4c69f82dd79fb69b6cbf8006b521f2               20 main/binary-all/Packages.gz
- cef8a701e1657590c861b68ce195ecf54b334fa0208be4c20c65b5e2671d4d205124e48be8dd2d14bb7c7ddc83e1cc982793d5b5733487f69cb85b97c88de1bb             2032 main/binary-amd64/Packages
- d6bac505121715002b120366dde1b7e8b8687475add690b5018e2946d156aa269aeaf389ffffce7949224e9ab023ed4ba63f179c9cf35744433a9d5a974e372d              841 main/binary-amd64/Packages.gz
+ ff2db2d86dfbbe8244e3225716069c7d99ad1b2a1f68c81dc03013765325725285181b55f8629045a30a582917faf5dde8d96272130b212a8ec9eb6964272b35             3048 main/binary-amd64/Packages
+ 6d588418f59aa741ffdd8025434bf112c2d0ca20d9d7763eab2384a62bce133584e352dac66bf47431681958b52c6b81f465715f31687077f957045c1bd0d282              963 main/binary-amd64/Packages.gz
