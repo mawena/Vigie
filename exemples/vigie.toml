@@ -65,6 +65,14 @@ attendu = []
 # chemin = "/srv/sauvegardes"
 # max_heures = 26
 
+# Machines distantes vues par le relais de Ricochet (exemple, commenté). Le jeton opérateur
+# se crée sur le relais : sudo -u ricochet ricochet-serveur jeton
+# [ricochet]
+# relais = "https://ricochet.mawena.cloud"
+# jeton = "..."
+# machines = []                    # vide : toutes
+# toujours_en_ligne = ["vps"]      # déconnexion = critique (pas un PC éteint la nuit)
+
 [alertes]
 duree_min = 2       # tournées consécutives avant d'alerter
 rappel = 360        # minutes entre deux rappels (0 : jamais)

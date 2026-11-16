@@ -13,6 +13,8 @@ dépendance lourde (pas de Prometheus/Grafana). Voir la [feuille de route](ROADM
 - **Alertes** sur le téléphone (ntfy, Telegram ou e-mail) : durée minimale avant d'alerter,
   alertes d'une même tournée groupées, aggravation signalée tout de suite, rappel espacé tant que
   ça dure, message de retour à la normale.
+- **Autres machines**, même sans IP publique (PC derrière une box), par le relais de
+  [Ricochet](https://github.com/mawena/Ricochet) : machine en ligne ou non, disques, mémoire.
 - **Historique** court dans SQLite (un point toutes les 5 min, 30 jours) et **tendance** de
   remplissage des disques (« plein dans environ N jours »).
 - **Tableau de bord web** léger, lisible sur téléphone : problèmes en cours, courbes du disque,
