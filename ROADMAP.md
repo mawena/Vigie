@@ -15,9 +15,10 @@
 - [x] Commande `vigie etat`
 
 ## Phase 2 — Alertes
-- [ ] Seuils, durée minimale, anti-répétition, retour à la normale
-- [ ] Canaux : ntfy, Telegram, e-mail
-- [ ] Service systemd utilisateur, consommation mesurée (< 20 Mo de RAM)
+- [x] Seuils, durée minimale, anti-répétition, retour à la normale
+- [x] Canaux : ntfy, Telegram, e-mail
+- [x] Service systemd utilisateur, consommation mesurée (< 20 Mo de RAM : 12 Mo au plus haut)
+- [x] En service sur le VPS (17/11/2026), alertes ntfy vérifiées
 - [ ] Release 0.1.0 : `.deb`, dépôt APT, release GitHub
 
 ## Phase 3 — Tableau de bord

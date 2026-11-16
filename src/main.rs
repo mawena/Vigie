@@ -1,5 +1,6 @@
 //! Vigie : surveillance légère d'un serveur, alertes sur le téléphone.
 
+mod alertes;
 mod config;
 mod modele;
 mod sondes;
@@ -15,6 +16,8 @@ Usage : vigie [--config FICHIER] <commande>
 
 Commandes :
   etat [--json]     lance toutes les sondes une fois et affiche le résultat
+  surveiller        surveille en continu et envoie les alertes (service systemd)
+  test-alerte       envoie un message d'essai sur tous les canaux configurés
   config-exemple    affiche une configuration commentée
   version           affiche la version
 
@@ -50,6 +53,14 @@ fn main() -> ExitCode {
         }
         "etat" => match charger(chemin) {
             Ok(c) => etat(&c, options.iter().any(|o| o == "--json")),
+            Err(e) => erreur(e),
+        },
+        "surveiller" => match charger(chemin) {
+            Ok(c) => surveiller(c),
+            Err(e) => erreur(e),
+        },
+        "test-alerte" => match charger(chemin) {
+            Ok(c) => test_alerte(&c),
             Err(e) => erreur(e),
         },
         autre => {
@@ -119,4 +130,67 @@ fn afficher(nom: &str, mesures: &[Mesure]) {
         mesures.iter().filter(|m| m.niveau == Niveau::Critique).count(),
     );
     println!("{} mesures : {} critique(s), {} attention(s)", mesures.len(), c, a);
+}
+
+fn canaux(c: &Config) -> usize {
+    [c.ntfy.is_some(), c.telegram.is_some(), c.courriel.is_some()].iter().filter(|x| **x).count()
+}
+
+fn test_alerte(c: &Config) -> ExitCode {
+    if canaux(c) == 0 {
+        return erreur("aucun canal d'alerte configuré ([ntfy], [telegram] ou [courriel])".into());
+    }
+    let m = alertes::Message {
+        titre: format!("{} : essai", c.nom),
+        corps: "Message d'essai de Vigie : les alertes arrivent bien.".into(),
+        niveau: Niveau::Attention,
+    };
+    match alertes::envoyer(c, &m) {
+        Ok(n) => {
+            println!("Message d'essai envoyé sur {n} canal(aux).");
+            ExitCode::SUCCESS
+        }
+        Err(es) => erreur(es.join("\n")),
+    }
+}
+
+/// Boucle principale : une tournée par intervalle, alertes, messages en attente réessayés.
+fn surveiller(c: Config) -> ExitCode {
+    eprintln!("vigie {} : surveillance de {} toutes les {} s", env!("CARGO_PKG_VERSION"), c.nom, c.intervalle);
+    if canaux(&c) == 0 {
+        eprintln!("attention : aucun canal d'alerte configuré, les problèmes ne seront que journalisés");
+    }
+    let mut veilleur = alertes::Veilleur::default();
+    let mut en_attente: Vec<(alertes::Message, u32)> = Vec::new();
+    loop {
+        let debut = std::time::Instant::now();
+        let mesures = sondes::tournee(&c);
+        let evenements = veilleur.evaluer(&c.alertes, &mesures, modele::maintenant());
+        for e in &evenements {
+            eprintln!("{} {}", e.niveau.libelle(), e.texte);
+        }
+        if canaux(&c) > 0 {
+            if let Some(m) = alertes::composer(&c.nom, &evenements) {
+                en_attente.push((m, 0));
+            }
+            // Un message qui n'est parti sur aucun canal est réessayé aux tournées suivantes (10 fois).
+            let mut reste = Vec::new();
+            for (m, essais) in en_attente.drain(..) {
+                match alertes::envoyer(&c, &m) {
+                    Ok(_) => {}
+                    Err(es) => {
+                        for e in &es {
+                            eprintln!("envoi impossible : {e}");
+                        }
+                        if es.len() == canaux(&c) && essais < 10 {
+                            reste.push((m, essais + 1));
+                        }
+                    }
+                }
+            }
+            en_attente = reste;
+        }
+        let pause = std::time::Duration::from_secs(c.intervalle).saturating_sub(debut.elapsed());
+        std::thread::sleep(pause);
+    }
 }

@@ -1,0 +1,9 @@
+Dépôt APT de Vigie : https://mawena.github.io/Vigie/apt (branche gh-pages).
+
+vigie.gpg      clé publique de signature (format binaire, sans armure)
+vigie.sources  source deb822 installée dans /etc/apt/sources.list.d/
+
+Clé de signature : « Vigie APT (mawena) <57989130+mawena@users.noreply.github.com> »
+Empreinte : 3429 F5DB 3EDE 539A 8DBE 1E1A 4DA8 92AE 9870 49CB
+ed25519, sans phrase de passe, créée le 17/11/2026 sur le VPS, valable 3 ans.
+Publication : scripts/publier-apt.sh dist/vigie_<version>_amd64.deb
