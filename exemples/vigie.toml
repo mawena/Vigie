@@ -1,0 +1,101 @@
+# Configuration de Vigie : ~/.config/vigie/vigie.toml
+# Toutes les sections sont facultatives ; les valeurs indiquées sont celles par défaut
+# sauf mention contraire. Vérifier avec : vigie etat
+
+# Nom de la machine dans les alertes (défaut : nom d'hôte).
+# nom = "vps"
+# Secondes entre deux tournées de sondes.
+intervalle = 60
+
+[disque]
+chemins = ["/"]
+attention = 85      # % utilisé
+critique = 95
+
+[memoire]
+attention = 90      # % utilisé
+critique = 97
+
+[charge]
+attention = 1.5     # charge moyenne sur 5 min, par cœur
+critique = 3.0
+
+[temperature]       # ignorée s'il n'y a aucun capteur
+attention = 80      # °C
+critique = 95
+
+[systemd]
+echecs = true                   # alerte sur toute unité système en échec
+ignorer = ["systemd-networkd-wait-online.service"]
+unites = ["nginx.service"]      # doivent être actives (exemple)
+unites_utilisateur = []         # systemctl --user
+
+[docker]                        # actif si le socket existe
+conteneurs = []                 # doivent tourner, par exemple ["immich_server"]
+signaler_malades = true         # conteneurs « unhealthy » ou qui redémarrent
+
+[libvirt]
+uri = "qemu:///system"
+domaines = []                   # machines virtuelles qui doivent tourner
+
+# Sites web : un bloc par site (exemple).
+[[http]]
+nom = "CCS"
+url = "https://ccs.mawena.cloud"
+statut_max = 399                # plus haut code accepté
+delai = 10                      # secondes
+lent = 5                        # au-delà : « attention »
+# contient = "texte attendu"
+
+# Certificats TLS (exemple).
+[[tls]]
+hote = "ccs.mawena.cloud"
+port = 443
+attention_jours = 14
+critique_jours = 5
+
+# Résolution DNS (exemple) ; attendu vide : il suffit que le nom résolve.
+[[dns]]
+nom = "mawena.cloud"
+attendu = []
+
+# Sauvegardes : âge du fichier le plus récent du dossier (exemple, commenté).
+# [[sauvegarde]]
+# nom = "Coffre"
+# chemin = "/srv/sauvegardes"
+# max_heures = 26
+
+[alertes]
+duree_min = 2       # tournées consécutives avant d'alerter
+rappel = 360        # minutes entre deux rappels (0 : jamais)
+retour = true       # annoncer le retour à la normale
+attention = true    # alerter aussi pour « attention » (sinon seulement « critique »)
+
+# Canaux : au moins un pour recevoir les alertes.
+[ntfy]
+serveur = "https://ntfy.sh"
+sujet = "vigie-remplacer-par-un-sujet-long-et-aleatoire"
+# jeton = "tk_..."  # serveur ntfy protégé
+
+# [telegram]
+# jeton = "123456:ABC..."       # bot créé avec @BotFather
+# chat = "123456789"
+
+# [courriel]
+# a = "moi@exemple.org"
+# de = "vigie@exemple.org"
+# commande = "/usr/sbin/sendmail"
+
+[historique]
+actif = true
+pas = 300           # secondes entre deux points
+garder_jours = 30
+# fichier = "~/.local/share/vigie/historique.db"
+
+[web]
+actif = true
+adresse = "127.0.0.1:8790"
+utilisateur = "vigie"
+# Empreinte du mot de passe, donnée par : vigie mot-de-passe
+# Sans mot de passe, le tableau de bord n'écoute que sur 127.0.0.1.
+mot_de_passe = ""
