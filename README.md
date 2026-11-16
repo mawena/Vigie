@@ -13,6 +13,10 @@ dépendance lourde (pas de Prometheus/Grafana). Voir la [feuille de route](ROADM
 - **Alertes** sur le téléphone (ntfy, Telegram ou e-mail) : durée minimale avant d'alerter,
   alertes d'une même tournée groupées, aggravation signalée tout de suite, rappel espacé tant que
   ça dure, message de retour à la normale.
+- **Historique** court dans SQLite (un point toutes les 5 min, 30 jours) et **tendance** de
+  remplissage des disques (« plein dans environ N jours »).
+- **Tableau de bord web** léger, lisible sur téléphone : problèmes en cours, courbes du disque,
+  de la mémoire et de la charge (24 h, 7 ou 30 jours), toutes les mesures, dernières alertes.
 - **Lecture seule** : Vigie regarde, il ne redémarre ni ne modifie rien.
 
 Les choix de départ (seuils, canaux, lien avec Ricochet) sont expliqués dans
@@ -54,6 +58,21 @@ sudo loginctl enable-linger "$USER"      # pour tourner sans session ouverte
 journalctl --user -u vigie -f            # journal du service
 ```
 
+### Tableau de bord
+
+`vigie surveiller` sert le tableau de bord sur `127.0.0.1:8790` (section `[web]`). Pour y
+accéder de l'extérieur, mettre nginx devant en HTTPS (modèle :
+[`deploiement/nginx-vigie.conf`](deploiement/nginx-vigie.conf), installé dans
+`/usr/share/doc/vigie/`) et choisir un mot de passe :
+
+```sh
+vigie mot-de-passe        # tape le mot de passe, affiche son empreinte SHA-256
+```
+
+puis recopier l'empreinte dans `mot_de_passe` de `[web]` et redémarrer
+(`systemctl --user restart vigie`). Sans mot de passe, Vigie refuse d'écouter ailleurs que sur
+127.0.0.1. API : `GET /api/etat` (dernière tournée), `GET /api/serie?cle=disque:/&jours=7`.
+
 Pour recevoir les alertes avec ntfy : installer l'application ntfy sur le téléphone et s'abonner
 au sujet choisi dans `[ntfy]` (un nom long et aléatoire, il fait office de secret).
 
@@ -74,6 +93,8 @@ les unités systemd en échec et les conteneurs Docker malades. Modèle comment�
 | `[[http]]` `[[tls]]` `[[dns]]` `[[sauvegarde]]` | un bloc par site, certificat, nom ou dossier |
 | `[alertes]` | `duree_min` (tournées), `rappel` (minutes), `retour`, `attention` |
 | `[ntfy]` `[telegram]` `[courriel]` | canaux d'alerte |
+| `[historique]` | `actif`, `pas` (secondes), `garder_jours`, `fichier` |
+| `[web]` | `actif`, `adresse`, `utilisateur`, `mot_de_passe` (empreinte) |
 
 Le fichier contient des secrets (sujet ntfy, jeton Telegram) : droits `600`.
 
@@ -85,8 +106,10 @@ src/modele.rs         niveaux et mesures
 src/sondes/           systeme (disque, mémoire, charge, température), services (systemd,
                       Docker, libvirt), reseau (HTTP, TLS, DNS), fichiers (sauvegardes)
 src/alertes.rs        décision d'alerter, messages groupés, ntfy / Telegram / e-mail
+src/historique.rs     historique SQLite, tendance de remplissage
+src/web.rs, src/web/  tableau de bord (HTML, CSS, JS) et API JSON
 exemples/vigie.toml   configuration commentée
-deploiement/          service systemd utilisateur
+deploiement/          service systemd utilisateur, modèle nginx
 paquets/apt/          clé et source du dépôt APT
 scripts/              construire-deb.sh, publier-apt.sh
 site/                 page d'accueil du dépôt APT (GitHub Pages)

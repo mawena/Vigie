@@ -43,7 +43,7 @@ echo /etc/apt/sources.list.d/vigie.sources > "$P/DEBIAN/conffiles"
   sed 's/^$/./; s/^/ /' LICENSE
   echo
   echo "Comment: le binaire contient des bibliothèques Rust (licences MIT, Apache-2.0 ou ISC,"
-  echo " voir Cargo.lock)."
+  echo " voir Cargo.lock) et SQLite (domaine public)."
 } > "$P/usr/share/doc/vigie/copyright"
 printf 'vigie (%s) stable; urgency=medium\n\n  * Version %s, voir le journal des versions :\n    https://github.com/mawena/Vigie/blob/main/CHANGELOG.md\n\n -- %s  %s\n' \
   "$VERSION" "$VERSION" "$MAINTENEUR" "$DATE" | gzip -9n > "$P/usr/share/doc/vigie/changelog.gz"

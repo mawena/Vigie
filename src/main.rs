@@ -2,8 +2,10 @@
 
 mod alertes;
 mod config;
+mod historique;
 mod modele;
 mod sondes;
+mod web;
 
 use config::Config;
 use modele::{Mesure, Niveau};
@@ -18,6 +20,7 @@ Commandes :
   etat [--json]     lance toutes les sondes une fois et affiche le résultat
   surveiller        surveille en continu et envoie les alertes (service systemd)
   test-alerte       envoie un message d'essai sur tous les canaux configurés
+  mot-de-passe      lit un mot de passe sur l'entrée et affiche son empreinte (section [web])
   config-exemple    affiche une configuration commentée
   version           affiche la version
 
@@ -63,6 +66,7 @@ fn main() -> ExitCode {
             Ok(c) => test_alerte(&c),
             Err(e) => erreur(e),
         },
+        "mot-de-passe" => mot_de_passe(),
         autre => {
             eprintln!("commande inconnue : {autre}\n\n{AIDE}");
             ExitCode::from(2)
@@ -160,14 +164,39 @@ fn surveiller(c: Config) -> ExitCode {
     if canaux(&c) == 0 {
         eprintln!("attention : aucun canal d'alerte configuré, les problèmes ne seront que journalisés");
     }
+    let partage: web::Partage = Default::default();
+    let mut historique = if c.historique.actif {
+        match historique::Historique::ouvrir(&c.fichier_historique()) {
+            Ok(h) => Some(h),
+            Err(e) => {
+                eprintln!("historique désactivé : {e}");
+                None
+            }
+        }
+    } else {
+        None
+    };
+    if c.web.actif {
+        if historique.is_none() {
+            eprintln!("tableau de bord désactivé : il lit l'historique");
+        } else if let Err(e) = web::lancer(&c.web, c.nom.clone(), c.fichier_historique(), partage.clone()) {
+            eprintln!("tableau de bord désactivé : {e}");
+        }
+    }
     let mut veilleur = alertes::Veilleur::default();
     let mut en_attente: Vec<(alertes::Message, u32)> = Vec::new();
     loop {
         let debut = std::time::Instant::now();
         let mesures = sondes::tournee(&c);
-        let evenements = veilleur.evaluer(&c.alertes, &mesures, modele::maintenant());
+        let t = modele::maintenant();
+        let evenements = veilleur.evaluer(&c.alertes, &mesures, t);
         for e in &evenements {
-            eprintln!("{} {}", e.niveau.libelle(), e.texte);
+            eprintln!("{} {}", if e.retour { "RETOUR" } else { e.niveau.libelle() }, e.texte);
+        }
+        if let Some(h) = historique.as_mut() {
+            if let Err(e) = h.enregistrer(&mesures, t, c.historique.pas, c.historique.garder_jours).and_then(|_| h.noter(&evenements, t)) {
+                eprintln!("historique : {e}");
+            }
         }
         if canaux(&c) > 0 {
             if let Some(m) = alertes::composer(&c.nom, &evenements) {
@@ -190,7 +219,24 @@ fn surveiller(c: Config) -> ExitCode {
             }
             en_attente = reste;
         }
+        if let Ok(mut e) = partage.lock() {
+            e.t = t;
+            e.mesures = mesures;
+        }
         let pause = std::time::Duration::from_secs(c.intervalle).saturating_sub(debut.elapsed());
         std::thread::sleep(pause);
     }
+}
+
+fn mot_de_passe() -> ExitCode {
+    use std::io::{BufRead, IsTerminal};
+    if std::io::stdin().is_terminal() {
+        eprintln!("Mot de passe (affiché en clair, puis Entrée) :");
+    }
+    let mut ligne = String::new();
+    if std::io::stdin().lock().read_line(&mut ligne).is_err() || ligne.trim_end_matches(['\r', '\n']).is_empty() {
+        return erreur("mot de passe vide".into());
+    }
+    println!("{}", web::empreinte(ligne.trim_end_matches(['\r', '\n'])));
+    ExitCode::SUCCESS
 }
