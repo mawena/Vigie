@@ -2,22 +2,23 @@
 
 ## Phase 0 — Cadrage
 - [x] Idée et création du projet (16/11/2026)
-- [ ] Liste des sondes voulues et seuils par défaut (avec Charles)
-- [ ] Canal d'alerte : ntfy (auto-hébergé ?), Telegram ou e-mail
-- [ ] Lien avec Ricochet : agent commun ou agent séparé
-- [ ] Vérifier ce qui est lisible sans root (systemd, docker, libvirt, journaux)
+- [x] Liste des sondes voulues et seuils par défaut (voir docs/cadrage.md)
+- [x] Canal d'alerte : ntfy par défaut, Telegram et e-mail en plus
+- [x] Lien avec Ricochet : agent séparé
+- [x] Vérifier ce qui est lisible sans root (systemd, docker, libvirt, journaux)
 
 ## Phase 1 — Fondations
-- [ ] Espace de travail Cargo, format de configuration TOML
-- [ ] Sondes système : disque, RAM, charge, températures
-- [ ] Sondes services : systemd, Docker, libvirt
-- [ ] Sondes réseau : HTTP(S), certificats TLS, DNS
-- [ ] Commande `vigie etat`
+- [x] Projet Cargo, format de configuration TOML
+- [x] Sondes système : disque, RAM, charge, températures
+- [x] Sondes services : systemd, Docker, libvirt
+- [x] Sondes réseau : HTTP(S), certificats TLS, DNS
+- [x] Commande `vigie etat`
 
 ## Phase 2 — Alertes
-- [ ] Seuils, durée minimale, anti-répétition, retour à la normale
-- [ ] Canaux : ntfy, Telegram, e-mail
-- [ ] Service systemd utilisateur, consommation mesurée (< 20 Mo de RAM)
+- [x] Seuils, durée minimale, anti-répétition, retour à la normale
+- [x] Canaux : ntfy, Telegram, e-mail
+- [x] Service systemd utilisateur, consommation mesurée (< 20 Mo de RAM : 12 Mo au plus haut)
+- [x] En service sur le VPS (17/11/2026), alertes ntfy vérifiées
 - [ ] Release 0.1.0 : `.deb`, dépôt APT, release GitHub
 
 ## Phase 3 — Tableau de bord

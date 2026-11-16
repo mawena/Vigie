@@ -1,0 +1,15 @@
+[Unit]
+Description=Vigie, surveillance légère et alertes sur le téléphone
+Documentation=https://github.com/mawena/Vigie
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/vigie surveiller
+Restart=always
+RestartSec=10
+Nice=10
+MemoryMax=64M
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target
