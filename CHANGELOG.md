@@ -3,6 +3,21 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions
 [SemVer](https://semver.org/lang/fr/).
 
+## [0.2.0] — 2026-11-17
+
+Historique et tableau de bord.
+
+### Ajouté
+- Historique SQLite (`[historique]`) : valeurs numériques des mesures toutes les 5 min, alertes,
+  purge après 30 jours.
+- Tendance de remplissage des disques sur 7 jours (« plein dans environ N jours »).
+- Tableau de bord web (`[web]`, `127.0.0.1:8790`) : état global, problèmes en cours, courbes
+  24 h / 7 j / 30 j avec infobulle, toutes les mesures, dernières alertes ; clair et sombre,
+  lisible sur téléphone. API JSON `/api/etat` et `/api/serie`.
+- Mot de passe HTTP Basic (empreinte SHA-256, `vigie mot-de-passe`) ; refus d'écouter hors de
+  127.0.0.1 sans mot de passe ; en-têtes de sécurité (CSP stricte).
+- Modèle nginx (`deploiement/nginx-vigie.conf`).
+
 ## [0.1.0] — 2026-11-17
 
 Première version : sondes et alertes.

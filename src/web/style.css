@@ -1,0 +1,70 @@
+/* Vigie : tableau de bord. Rôles de couleur définis une fois, clair et sombre. */
+:root {
+  color-scheme: light;
+  --fond: #f4f1ec; --surface: #fcfcfb; --texte: #0b0b0b; --texte-2: #52514e; --discret: #8a877f;
+  --trait: #e2ddd4; --serie: #2a78d6; --accent: #8f3f10;
+  --ok: #0ca30c; --attention: #fab219; --critique: #d03b3b;
+  --police: "Cantarell", "Ubuntu", system-ui, sans-serif; --mono: "Ubuntu Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --fond: #121211; --surface: #1a1a19; --texte: #f0efec; --texte-2: #c3c2b7; --discret: #8f8d85;
+    --trait: #33322f; --serie: #3987e5; --accent: #ffc08c;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fond); color: var(--texte); font: 16px/1.5 var(--police); }
+main { width: min(1040px, 100% - 24px); margin: 0 auto; padding: 12px 0 32px; }
+a { color: var(--accent); }
+h1 { font-size: 1.4rem; margin: 0; display: flex; align-items: center; gap: 8px; }
+h1 .machine { color: var(--texte-2); font-weight: 400; }
+h2 { font-size: 1.1rem; margin: 28px 0 10px; }
+h3 { font-size: .95rem; margin: 0; color: var(--texte-2); font-weight: 600; }
+.entete { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 8px 0; }
+.entete .maj { margin: 0; color: var(--texte-2); font-size: .9rem; width: 100%; }
+.global { margin: 0; font-weight: 700; padding: 2px 12px; border-radius: 999px; border: 2px solid; }
+.global.ok { border-color: var(--ok); } .global.attention { border-color: var(--attention); } .global.critique { border-color: var(--critique); }
+.global .icone { display: inline-block; width: 1.3em; height: 1.3em; line-height: 1.3em; text-align: center; border-radius: 50%; color: #fff; font-size: .85em; }
+.global.ok .icone { background: var(--ok); } .global.attention .icone { background: var(--attention); color: #0b0b0b; } .global.critique .icone { background: var(--critique); }
+
+/* Pastille d'état : icône + libellé, la couleur ne porte jamais seule le sens. */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: .8rem; font-weight: 600; white-space: nowrap; color: var(--texte); }
+.badge > span { display: inline-block; width: 1.25em; height: 1.25em; line-height: 1.25em; text-align: center; border-radius: 50%; color: #fff; font-size: .8em; }
+.badge.ok > span { background: var(--ok); } .badge.attention > span { background: var(--attention); color: #0b0b0b; } .badge.critique > span { background: var(--critique); }
+
+.calme { color: var(--texte-2); margin: 0; }
+.problemes, .journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.problemes li { background: var(--surface); border: 1px solid var(--trait); border-left: 4px solid; border-radius: 8px; padding: 8px 12px; }
+.problemes li.attention { border-left-color: var(--attention); } .problemes li.critique { border-left-color: var(--critique); }
+.journal li { font-size: .9rem; color: var(--texte-2); }
+.journal time { font-family: var(--mono); color: var(--discret); }
+
+.titre-section { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.periodes { display: flex; gap: 4px; }
+.periodes a { text-decoration: none; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--trait); color: var(--texte-2); font-size: .85rem; min-height: 32px; display: inline-flex; align-items: center; }
+.periodes a[aria-current] { background: var(--texte); color: var(--fond); border-color: var(--texte); }
+
+.cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.carte { background: var(--surface); border: 1px solid var(--trait); border-radius: 12px; padding: 12px 14px; }
+.carte .valeur { font-size: 1.6rem; font-weight: 700; margin: 2px 0 4px; display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.carte .note, .carte .vide { margin: 4px 0 0; font-size: .85rem; color: var(--texte-2); }
+.courbe { margin: 0; position: relative; }
+.courbe svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
+.courbe .grille { stroke: var(--trait); stroke-width: 1; }
+.courbe .axe { fill: var(--discret); font-size: 11px; font-family: var(--police); }
+.courbe .ligne { fill: none; stroke: var(--serie); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.courbe .dernier { fill: var(--serie); stroke: var(--surface); stroke-width: 2; }
+.courbe .viseur { stroke: var(--texte-2); stroke-width: 1; stroke-dasharray: 3 3; }
+.courbe .point { fill: var(--serie); stroke: var(--surface); stroke-width: 2; }
+.bulle { position: absolute; top: 0; pointer-events: none; background: var(--texte); color: var(--fond); font-size: .8rem; padding: 4px 8px; border-radius: 6px; white-space: nowrap; transform: translateX(-50%); }
+.bulle[hidden] { display: none; }
+
+.defile { overflow-x: auto; background: var(--surface); border: 1px solid var(--trait); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--trait); vertical-align: top; }
+th { color: var(--texte-2); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.nombre { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:last-child { color: var(--texte-2); }
+.pied { margin-top: 28px; color: var(--discret); font-size: .85rem; }
