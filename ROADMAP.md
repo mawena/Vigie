@@ -25,8 +25,16 @@
 - [x] Historique compact (SQLite), tendance de remplissage du disque
 - [x] Interface web légère, authentification (HTTP Basic), modèle nginx
 - [ ] Mise en ligne sur vigie.mawena.cloud : DNS, nginx, certbot (root : Charles)
-- [ ] Release 0.2.0
+- [x] Release 0.2.0
 
 ## Phase 4 — Plusieurs machines
-- [ ] Sondes à distance via l'agent Ricochet (PC sans IP publique)
-- [ ] Sondes sauvegardes (Coffre)
+- [x] Sondes à distance via le relais Ricochet (PC sans IP publique), release 0.3.0
+- [ ] Brancher le jeton opérateur sur le relais du VPS (root : Charles)
+- [x] Sonde générique des sauvegardes (âge du fichier le plus récent)
+- [ ] La brancher sur Coffre quand il existera (dossier ou état de ses sauvegardes)
+
+## Plus tard (idées)
+- [ ] Garder l'état des alertes au redémarrage (annoncer le retour à la normale d'un problème
+      signalé avant un redémarrage)
+- [ ] Rendre le dépôt public (ou passer à une offre payante) pour servir le site et le dépôt APT
+      par GitHub Pages
