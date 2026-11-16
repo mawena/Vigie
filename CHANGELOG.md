@@ -3,6 +3,16 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions
 [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.0] — 2026-11-17
+
+Plusieurs machines.
+
+### Ajouté
+- Section `[ricochet]` : état des machines vues par le relais de Ricochet (API opérateur,
+  jeton) — en ligne ou non (critique seulement pour `toujours_en_ligne`), disques et mémoire
+  distants avec les mêmes seuils, historique et courbes. Marche pour un PC sans IP publique.
+- Machine attendue mais absente du relais signalée.
+
 ## [0.2.0] — 2026-11-17
 
 Historique et tableau de bord.
