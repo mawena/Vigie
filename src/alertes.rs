@@ -106,6 +106,7 @@ impl Veilleur {
     }
 
     /// Problèmes annoncés et toujours en cours.
+    #[cfg(test)]
     pub fn en_cours(&self) -> usize {
         self.suivis.values().filter(|s| s.annonce != Niveau::Ok).count()
     }
