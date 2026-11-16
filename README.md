@@ -13,6 +13,8 @@ dépendance lourde (pas de Prometheus/Grafana). Voir la [feuille de route](ROADM
 - **Alertes** sur le téléphone (ntfy, Telegram ou e-mail) : durée minimale avant d'alerter,
   alertes d'une même tournée groupées, aggravation signalée tout de suite, rappel espacé tant que
   ça dure, message de retour à la normale.
+- **Autres machines**, même sans IP publique (PC derrière une box), par le relais de
+  [Ricochet](https://github.com/mawena/Ricochet) : machine en ligne ou non, disques, mémoire.
 - **Historique** court dans SQLite (un point toutes les 5 min, 30 jours) et **tendance** de
   remplissage des disques (« plein dans environ N jours »).
 - **Tableau de bord web** léger, lisible sur téléphone : problèmes en cours, courbes du disque,
@@ -73,6 +75,22 @@ puis recopier l'empreinte dans `mot_de_passe` de `[web]` et redémarrer
 (`systemctl --user restart vigie`). Sans mot de passe, Vigie refuse d'écouter ailleurs que sur
 127.0.0.1. API : `GET /api/etat` (dernière tournée), `GET /api/serie?cle=disque:/&jours=7`.
 
+### Autres machines (Ricochet)
+
+Si les machines font tourner l'agent de Ricochet, Vigie lit leur état sur le relais avec un
+jeton opérateur, en lecture seule :
+
+```sh
+ricochet-serveur jeton    # affiche un jeton et son empreinte
+# empreinte -> jeton_operateur_sha256 dans /etc/ricochet/serveur.toml, puis
+sudo systemctl restart ricochet-serveur
+```
+
+puis, dans `vigie.toml` : section `[ricochet]` avec `relais`, `jeton`, `machines` (vide :
+toutes) et `toujours_en_ligne` (machines dont la déconnexion est critique ; un PC éteint la
+nuit n'en fait pas partie). Les disques et la mémoire distants suivent les seuils de
+`[disque]` et `[memoire]` et ont leurs courbes sur le tableau de bord.
+
 Pour recevoir les alertes avec ntfy : installer l'application ntfy sur le téléphone et s'abonner
 au sujet choisi dans `[ntfy]` (un nom long et aléatoire, il fait office de secret).
 
@@ -91,6 +109,7 @@ les unités systemd en échec et les conteneurs Docker malades. Modèle comment�
 | `[docker]` | `conteneurs` qui doivent tourner, `signaler_malades` |
 | `[libvirt]` | `uri`, `domaines` qui doivent tourner |
 | `[[http]]` `[[tls]]` `[[dns]]` `[[sauvegarde]]` | un bloc par site, certificat, nom ou dossier |
+| `[ricochet]` | `relais`, `jeton`, `machines`, `toujours_en_ligne` |
 | `[alertes]` | `duree_min` (tournées), `rappel` (minutes), `retour`, `attention` |
 | `[ntfy]` `[telegram]` `[courriel]` | canaux d'alerte |
 | `[historique]` | `actif`, `pas` (secondes), `garder_jours`, `fichier` |
@@ -104,7 +123,8 @@ src/main.rs           commandes (etat, surveiller, test-alerte…)
 src/config.rs         configuration TOML et valeurs par défaut
 src/modele.rs         niveaux et mesures
 src/sondes/           systeme (disque, mémoire, charge, température), services (systemd,
-                      Docker, libvirt), reseau (HTTP, TLS, DNS), fichiers (sauvegardes)
+                      Docker, libvirt), reseau (HTTP, TLS, DNS), fichiers (sauvegardes),
+                      distant (machines vues par le relais de Ricochet)
 src/alertes.rs        décision d'alerter, messages groupés, ntfy / Telegram / e-mail
 src/historique.rs     historique SQLite, tendance de remplissage
 src/web.rs, src/web/  tableau de bord (HTML, CSS, JS) et API JSON

@@ -21,6 +21,7 @@ pub struct Config {
     pub tls: Vec<Tls>,
     pub dns: Vec<Dns>,
     pub sauvegarde: Vec<Sauvegarde>,
+    pub ricochet: Option<Ricochet>,
     pub alertes: Alertes,
     pub ntfy: Option<Ntfy>,
     pub telegram: Option<Telegram>,
@@ -45,6 +46,7 @@ impl Default for Config {
             tls: Vec::new(),
             dns: Vec::new(),
             sauvegarde: Vec::new(),
+            ricochet: None,
             alertes: Alertes::default(),
             ntfy: None,
             telegram: None,
@@ -204,6 +206,22 @@ pub struct Sauvegarde {
     pub max_heures: f64,
 }
 
+/// Machines distantes vues par le relais de Ricochet.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Ricochet {
+    /// Adresse du relais, par exemple https://ricochet.mawena.cloud
+    pub relais: String,
+    /// Jeton opérateur (`ricochet-serveur jeton`).
+    pub jeton: String,
+    /// Machines à surveiller (vide : toutes).
+    #[serde(default)]
+    pub machines: Vec<String>,
+    /// Machines dont la déconnexion est un problème (un PC éteint la nuit n'en fait pas partie).
+    #[serde(default)]
+    pub toujours_en_ligne: Vec<String>,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Alertes {
@@ -316,6 +334,11 @@ impl Config {
         for h in &self.http {
             if !h.url.starts_with("http://") && !h.url.starts_with("https://") {
                 return Err(format!("http « {} » : l'adresse doit commencer par http:// ou https://", h.nom));
+            }
+        }
+        if let Some(r) = &self.ricochet {
+            if !r.relais.starts_with("https://") && !r.relais.starts_with("http://127.0.0.1") {
+                return Err("ricochet.relais : https:// attendu (le jeton ne doit pas circuler en clair)".into());
             }
         }
         if !self.web.mot_de_passe.is_empty() && (self.web.mot_de_passe.len() != 64 || hex::decode(&self.web.mot_de_passe).is_err()) {

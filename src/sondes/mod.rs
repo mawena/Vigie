@@ -1,5 +1,6 @@
 //! Les sondes. Une tournée lance toutes les sondes configurées et renvoie leurs mesures.
 
+pub mod distant;
 pub mod fichiers;
 pub mod reseau;
 pub mod services;
@@ -40,10 +41,14 @@ pub fn tournee(c: &Config) -> Vec<Mesure> {
         for d in &c.dns {
             fils.push(s.spawn(move || reseau::dns(d)));
         }
+        let distant = s.spawn(|| distant::ricochet(c));
         for f in fils {
             if let Ok(m) = f.join() {
                 mesures.push(m);
             }
+        }
+        if let Ok(m) = distant.join() {
+            mesures.extend(m);
         }
     });
     mesures
