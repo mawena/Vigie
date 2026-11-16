@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigie, surveillance légère d'un serveur, alertes sur le téléphone</title>
+<meta name="description" content="Vigie surveille un serveur Linux sans root (disques, mémoire, services, Docker, sites, certificats, sauvegardes) et prévient sur le téléphone avant que ça casse. Un binaire Rust, installation par apt sur Ubuntu.">
+<meta name="theme-color" content="#f4f1ec" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1814" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="entete">
+  <a class="marque" href="./"><img src="icone.svg" alt="" width="32" height="32"><span>Vigie</span></a>
+  <nav aria-label="Liens du projet">
+    <a href="#installer">Installer</a>
+    <a href="https://github.com/mawena/Vigie/releases/latest">Dernière version</a>
+    <a href="https://github.com/mawena/Vigie">Code source</a>
+  </nav>
+</header>
+
+<main>
+  <section class="ouverture" aria-labelledby="titre">
+    <h1 id="titre">Être prévenu sur le téléphone avant que le serveur casse</h1>
+    <p class="chapeau">Disque qui se remplit, service tombé, conteneur arrêté, certificat qui expire, sauvegarde ratée, site qui ne répond plus : Vigie le voit et vous envoie une notification. Sans Prometheus, sans Grafana, sans root : un binaire d'une dizaine de Mo de mémoire.</p>
+
+    <div class="installation-courte">
+      <p>Sur Ubuntu 24.04 (amd64) :</p>
+      <div class="commande">
+        <pre><code id="cmd-courte">curl -fsSL https://mawena.github.io/Vigie/installer.sh | sudo sh</code></pre>
+        <button type="button" class="copier" data-cible="cmd-courte">Copier</button>
+      </div>
+      <p class="nuance">Le script ajoute le dépôt APT signé puis installe le paquet ; <a href="#installer">les commandes qu'il lance</a> sont détaillées plus bas.</p>
+    </div>
+  </section>
+
+  <section class="points" aria-labelledby="points-titre">
+    <h2 id="points-titre">Ce que surveille Vigie</h2>
+    <div class="grille">
+      <article>
+        <h3>La machine</h3>
+        <p>Remplissage des disques, mémoire disponible, charge par cœur, températures quand il y a des capteurs.</p>
+      </article>
+      <article>
+        <h3>Les services</h3>
+        <p>Unités systemd en échec ou arrêtées, conteneurs Docker arrêtés ou « unhealthy », machines virtuelles libvirt.</p>
+      </article>
+      <article>
+        <h3>Les sites</h3>
+        <p>Code de réponse et temps de réponse HTTP(S), jours restants des certificats TLS, résolution DNS.</p>
+      </article>
+      <article>
+        <h3>Les sauvegardes</h3>
+        <p>Âge du fichier le plus récent d'un dossier : une sauvegarde nocturne ratée se voit le matin.</p>
+      </article>
+      <article>
+        <h3>Des alertes qui ne harcèlent pas</h3>
+        <p>ntfy, Telegram ou e-mail. Durée minimale avant d'alerter, alertes groupées, rappel espacé, message de retour à la normale.</p>
+      </article>
+      <article>
+        <h3>Sans root</h3>
+        <p>Service systemd utilisateur, lecture seule : Vigie regarde, il ne touche à rien.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="installer" id="installer" aria-labelledby="installer-titre">
+    <h2 id="installer-titre">Installer</h2>
+    <p>Pour Ubuntu 24.04 et les distributions Debian équivalentes, sur processeur amd64. Une fois le dépôt ajouté, <code>sudo apt update &amp;&amp; sudo apt upgrade</code> apporte les nouvelles versions.</p>
+    <ol class="pas">
+      <li>
+        <p>Ajouter la clé qui signe le dépôt :</p>
+        <div class="commande"><pre><code id="cmd-cle">sudo curl -fsSLo /usr/share/keyrings/vigie.gpg https://mawena.github.io/Vigie/apt/vigie.gpg</code></pre><button type="button" class="copier" data-cible="cmd-cle">Copier</button></div>
+      </li>
+      <li>
+        <p>Ajouter le dépôt :</p>
+        <div class="commande"><pre><code id="cmd-source">sudo curl -fsSLo /etc/apt/sources.list.d/vigie.sources https://mawena.github.io/Vigie/apt/vigie.sources</code></pre><button type="button" class="copier" data-cible="cmd-source">Copier</button></div>
+      </li>
+      <li>
+        <p>Installer :</p>
+        <div class="commande"><pre><code id="cmd-installer">sudo apt update &amp;&amp; sudo apt install vigie</code></pre><button type="button" class="copier" data-cible="cmd-installer">Copier</button></div>
+      </li>
+      <li>
+        <p>Configurer et démarrer, en tant qu'utilisateur (pas root) :</p>
+        <div class="commande"><pre><code id="cmd-demarrer">mkdir -p ~/.config/vigie &amp;&amp; vigie config-exemple &gt; ~/.config/vigie/vigie.toml
+vigie etat
+vigie test-alerte
+systemctl --user enable --now vigie</code></pre><button type="button" class="copier" data-cible="cmd-demarrer">Copier</button></div>
+      </li>
+    </ol>
+    <p>En dernier recours, le paquet <code>.deb</code> est joint à chaque <a href="https://github.com/mawena/Vigie/releases/latest">release GitHub</a>.</p>
+  </section>
+</main>
+
+<footer class="pied">
+  <p>Vigie est un logiciel libre sous licence MIT, écrit par <a href="https://github.com/mawena">mawena</a>.</p>
+  <p>Clé du dépôt APT : <code>3429 F5DB 3EDE 539A 8DBE 1E1A 4DA8 92AE 9870 49CB</code></p>
+</footer>
+
+<script src="vigie.js" defer></script>
+</body>
+</html>
