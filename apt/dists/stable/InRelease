@@ -4,7 +4,7 @@ Hash: SHA512
 Architectures: all amd64
 Codename: stable
 Components: main
-Date: Mon, 16 Nov 2026 23:21:03 +0000
+Date: Mon, 16 Nov 2026 23:27:54 +0000
 Description: Vigie, surveillance légère et alertes
 Label: Vigie
 Origin: Vigie
@@ -12,27 +12,27 @@ Suite: stable
 MD5Sum:
  d41d8cd98f00b204e9800998ecf8427e                0 main/binary-all/Packages
  4a4dd3598707603b3f76a2378a4504aa               20 main/binary-all/Packages.gz
- c2839e19f6f425a7beaacc3cc209e509             1016 main/binary-amd64/Packages
- dfb268e7772f4ce2057599dafb41b415              704 main/binary-amd64/Packages.gz
+ 5b706ab987dc1e6384c9ac04bf2e214d             2032 main/binary-amd64/Packages
+ bad2d36c08f5f2374e2ee28ef362e2c7              841 main/binary-amd64/Packages.gz
 SHA1:
  da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-all/Packages
  a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/binary-all/Packages.gz
- 793a94cc5f435a7c20471f461e513bbcbd48f89d             1016 main/binary-amd64/Packages
- 90a9e2bb0ea7d078b17dde38faaa7c68cd1dd672              704 main/binary-amd64/Packages.gz
+ dacf1c190cb537c907c91232a816d2e1ceac9b1a             2032 main/binary-amd64/Packages
+ a1b56bfce47b170200c5e94e54fed7d0728969b9              841 main/binary-amd64/Packages.gz
 SHA256:
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-all/Packages
  f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/binary-all/Packages.gz
- 85afd06422a65a04597dafb6f8de1b081c4769f6f5d7e3d09bae68660ece56f1             1016 main/binary-amd64/Packages
- a6e82e770b52f49e5fa4f6c8c1bacd2a7d38e950755ac0949554707593e5630d              704 main/binary-amd64/Packages.gz
+ 3bcdc9288f29def76b47dcb190ccac154629b9ae564f9c7bb254b59660e7e153             2032 main/binary-amd64/Packages
+ 629c5f2c51eaa590ac6ce0fd2ccc324d10bea7ff11ebefac8c5de7326ce06651              841 main/binary-amd64/Packages.gz
 SHA512:
  cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e                0 main/binary-all/Packages
  1b46b9b08d5b338be9d732a1724795b2eab63daffde377218727c90857b79fe6a47bceed495117fcde60f7339812ef75ef4c69f82dd79fb69b6cbf8006b521f2               20 main/binary-all/Packages.gz
- bad8670707683b843efddb71098a2e8dca9702f72bd9927c9445c4f8fcd9b85f3d1e549a6c2190caee0dd038607d86bd9401dbd9c08a147606b43f7698b2a795             1016 main/binary-amd64/Packages
- b97cee4cccf59e1c471fb32fc1c4a3bde892168cb435903f67c29e2c935253d2fc5a4d288ee4acd12fb12b9655129c322909d603fe50fb35477e1d46ab3c0ebd              704 main/binary-amd64/Packages.gz
+ cef8a701e1657590c861b68ce195ecf54b334fa0208be4c20c65b5e2671d4d205124e48be8dd2d14bb7c7ddc83e1cc982793d5b5733487f69cb85b97c88de1bb             2032 main/binary-amd64/Packages
+ d6bac505121715002b120366dde1b7e8b8687475add690b5018e2946d156aa269aeaf389ffffce7949224e9ab023ed4ba63f179c9cf35744433a9d5a974e372d              841 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQQ0KfXbPt5Tmo2+HhpNqJKumHBJywUCavuP3wAKCRBNqJKumHBJ
-ywkzAQDApHRDX1M9JTY0Xu5KbKStX27D3SeuT90Vojd78g5ZKAD+Po6JKVINQLXA
-jDcgm4mEgMPX1xBkHE7PsLVrRE3kFwQ=
-=0kwv
+iHUEARYKAB0WIQQ0KfXbPt5Tmo2+HhpNqJKumHBJywUCavuRegAKCRBNqJKumHBJ
+y90qAP46MFCA2iJogGs9Qx8zkKjHcIPL+cij6Aoec7OxHUpwFwD8Cpgw96yjko1w
+wDndEIRhvSqXuJspL3VwKY5q6WokBwQ=
+=fNrw
 -----END PGP SIGNATURE-----
