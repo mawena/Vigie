@@ -26,22 +26,27 @@ Les choix de départ (seuils, canaux, lien avec Ricochet) sont expliqués dans
 
 ## Installation
 
-Ubuntu 24.04 (amd64), par le dépôt APT signé, en une ligne :
+Ubuntu 24.04 (amd64), par le dépôt APT signé unique de mawena (<https://apt.mawena.cloud/>),
+en une ligne :
 
 ```sh
-curl -fsSL https://mawena.github.io/Vigie/installer.sh | sudo sh
+curl -fsSL https://apt.mawena.cloud/installer.sh | sudo sh -s -- vigie
 ```
 
 Pas à pas (ce que fait le script) :
 
 ```sh
-sudo curl -fsSLo /usr/share/keyrings/vigie.gpg https://mawena.github.io/Vigie/apt/vigie.gpg
-sudo curl -fsSLo /etc/apt/sources.list.d/vigie.sources https://mawena.github.io/Vigie/apt/vigie.sources
-sudo apt update && sudo apt install vigie
+sudo curl -fsSLo /usr/share/keyrings/mawena-depot.gpg https://apt.mawena.cloud/mawena-depot.gpg
+sudo curl -fsSLo /etc/apt/sources.list.d/mawena-depot.sources https://apt.mawena.cloud/mawena-depot.sources
+sudo apt update && sudo apt install mawena-depot vigie
 ```
 
-Mises à jour : `sudo apt update && sudo apt upgrade`. En dernier recours, le `.deb` est joint à
-chaque [release GitHub](https://github.com/mawena/Vigie/releases).
+Mises à jour : `sudo apt update && sudo apt upgrade`. Depuis la 0.3.1, une machine qui suivait
+l'ancien dépôt du projet (`https://mawena.github.io/Vigie/apt`) passe d'elle-même au dépôt
+unique au premier `sudo apt upgrade` : `vigie` dépend de `mawena-depot` et retire l'ancienne
+source `/etc/apt/sources.list.d/vigie.sources`. En dernier recours, le `.deb` est joint à
+chaque [release GitHub](https://github.com/mawena/Vigie/releases) (avec `mawena-depot`, pris
+sur <https://apt.mawena.cloud/>).
 
 Depuis les sources : `cargo build --release`, binaire dans `target/release/vigie`.
 

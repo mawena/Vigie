@@ -29,10 +29,10 @@
     <div class="installation-courte">
       <p>Sur Ubuntu 24.04 (amd64) :</p>
       <div class="commande">
-        <pre><code id="cmd-courte">curl -fsSL https://mawena.github.io/Vigie/installer.sh | sudo sh</code></pre>
+        <pre><code id="cmd-courte">curl -fsSL https://apt.mawena.cloud/installer.sh | sudo sh -s -- vigie</code></pre>
         <button type="button" class="copier" data-cible="cmd-courte">Copier</button>
       </div>
-      <p class="nuance">Le script ajoute le dépôt APT signé puis installe le paquet ; <a href="#installer">les commandes qu'il lance</a> sont détaillées plus bas.</p>
+      <p class="nuance">Le script ajoute le <a href="https://apt.mawena.cloud/">dépôt APT signé de mawena</a> (dépôt unique de tous ses paquets) puis installe le paquet ; <a href="#installer">les commandes qu'il lance</a> sont détaillées plus bas.</p>
     </div>
   </section>
 
@@ -72,15 +72,15 @@
     <ol class="pas">
       <li>
         <p>Ajouter la clé qui signe le dépôt :</p>
-        <div class="commande"><pre><code id="cmd-cle">sudo curl -fsSLo /usr/share/keyrings/vigie.gpg https://mawena.github.io/Vigie/apt/vigie.gpg</code></pre><button type="button" class="copier" data-cible="cmd-cle">Copier</button></div>
+        <div class="commande"><pre><code id="cmd-cle">sudo curl -fsSLo /usr/share/keyrings/mawena-depot.gpg https://apt.mawena.cloud/mawena-depot.gpg</code></pre><button type="button" class="copier" data-cible="cmd-cle">Copier</button></div>
       </li>
       <li>
-        <p>Ajouter le dépôt :</p>
-        <div class="commande"><pre><code id="cmd-source">sudo curl -fsSLo /etc/apt/sources.list.d/vigie.sources https://mawena.github.io/Vigie/apt/vigie.sources</code></pre><button type="button" class="copier" data-cible="cmd-source">Copier</button></div>
+        <p>Ajouter le dépôt (<a href="https://apt.mawena.cloud/">apt.mawena.cloud</a>, dépôt unique des paquets de mawena) :</p>
+        <div class="commande"><pre><code id="cmd-source">sudo curl -fsSLo /etc/apt/sources.list.d/mawena-depot.sources https://apt.mawena.cloud/mawena-depot.sources</code></pre><button type="button" class="copier" data-cible="cmd-source">Copier</button></div>
       </li>
       <li>
         <p>Installer :</p>
-        <div class="commande"><pre><code id="cmd-installer">sudo apt update &amp;&amp; sudo apt install vigie</code></pre><button type="button" class="copier" data-cible="cmd-installer">Copier</button></div>
+        <div class="commande"><pre><code id="cmd-installer">sudo apt update &amp;&amp; sudo apt install mawena-depot vigie</code></pre><button type="button" class="copier" data-cible="cmd-installer">Copier</button></div>
       </li>
       <li>
         <p>Configurer et démarrer, en tant qu'utilisateur (pas root) :</p>
@@ -90,13 +90,13 @@ vigie test-alerte
 systemctl --user enable --now vigie</code></pre><button type="button" class="copier" data-cible="cmd-demarrer">Copier</button></div>
       </li>
     </ol>
-    <p>En dernier recours, le paquet <code>.deb</code> est joint à chaque <a href="https://github.com/mawena/Vigie/releases/latest">release GitHub</a>.</p>
+    <p>En dernier recours, le paquet <code>.deb</code> est joint à chaque <a href="https://github.com/mawena/Vigie/releases/latest">release GitHub</a> ; il dépend de <code>mawena-depot</code>, à prendre sur <a href="https://apt.mawena.cloud/">apt.mawena.cloud</a>.</p>
   </section>
 </main>
 
 <footer class="pied">
   <p>Vigie est un logiciel libre sous licence MIT, écrit par <a href="https://github.com/mawena">mawena</a>.</p>
-  <p>Clé du dépôt APT : <code>3429 F5DB 3EDE 539A 8DBE 1E1A 4DA8 92AE 9870 49CB</code></p>
+  <p>Clé du dépôt APT unique : <code>60A2 0BB2 21C9 1DAD F39D D55B 456B 0129 30FA 901D</code> (ancien dépôt de Vigie : <code>3429 F5DB 3EDE 539A 8DBE 1E1A 4DA8 92AE 9870 49CB</code>)</p>
 </footer>
 
 <script src="vigie.js" defer></script>

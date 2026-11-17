@@ -33,6 +33,10 @@
 - [x] Sonde générique des sauvegardes (âge du fichier le plus récent)
 - [ ] La brancher sur Coffre quand il existera (dossier ou état de ses sauvegardes)
 
+## Transition vers le dépôt unique (0.3.1)
+- [x] `Depends: mawena-depot`, `rm_conffile` de l'ancienne source, plus de source ni de clé dans le paquet
+- [x] README et site : installation par https://apt.mawena.cloud
+
 ## Plus tard (idées)
 - [ ] Garder l'état des alertes au redémarrage (annoncer le retour à la normale d'un problème
       signalé avant un redémarrage)
