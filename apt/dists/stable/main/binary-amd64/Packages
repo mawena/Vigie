@@ -1,3 +1,18 @@
+Package: mawena-depot
+Version: 0.2.1
+Architecture: all
+Maintainer: Charles GAMLIGO <57989130+mawena@users.noreply.github.com>
+Filename: pool/main/mawena-depot_0.2.1_all.deb
+Size: 1456
+MD5sum: 75a80b4230e73d0a1149b97dfd7c134c
+SHA1: 3281064f498200da981ca66e897ca567bdfd94aa
+SHA256: 90284010c5703a18bc5796ea5610e6440e32f0008753c7b91c9c5ec8d001ea89
+Section: misc
+Priority: optional
+Description: source APT et clé du dépôt mawena
+ Installe la source https://apt.mawena.cloud (Paquets Ubuntu de mawena) et la clé
+ qui signe ses index, pour que apt upgrade apporte les nouvelles versions.
+
 Package: vigie
 Version: 0.1.0
 Architecture: amd64
@@ -56,6 +71,29 @@ Size: 1673788
 MD5sum: ee56442140277dcbb0b635c78c6a4236
 SHA1: b2df61e69a88d4fc898900b1ce56736772ea60d3
 SHA256: a3cdb4b2db85d83bc50043b7c75dc451e4883d1a8e4ce77b0c184d7a748df4f1
+Section: admin
+Priority: optional
+Homepage: https://mawena.github.io/Vigie/
+Description: surveillance légère d'un serveur, alertes sur le téléphone
+ Vigie surveille un serveur sans root : disques, mémoire, charge,
+ températures, unités systemd, conteneurs Docker, machines libvirt, sites
+ HTTP(S), certificats TLS, DNS et âge des sauvegardes. Il prévient sur le
+ téléphone (ntfy, Telegram ou e-mail) avec durée minimale, rappels et retour
+ à la normale, garde un historique court dans SQLite et sert un petit
+ tableau de bord web. Un seul binaire, une dizaine de Mo de mémoire.
+
+Package: vigie
+Version: 0.3.1
+Architecture: amd64
+Maintainer: mawena <57989130+mawena@users.noreply.github.com>
+Installed-Size: 4216
+Depends: libc6 (>= 2.39), libgcc-s1, mawena-depot
+Suggests: docker.io, libvirt-clients
+Filename: pool/main/vigie_0.3.1_amd64.deb
+Size: 1672976
+MD5sum: ec2b202a63fce2ad4d822224677a2d62
+SHA1: fb5911621eca6040ea66adc21daf4b9d42b072c2
+SHA256: f01477485daaef4e02e1e4a902d6eb14972cde2d9bc4d9588d3039501a0d273c
 Section: admin
 Priority: optional
 Homepage: https://mawena.github.io/Vigie/

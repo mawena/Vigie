@@ -4,35 +4,35 @@ Hash: SHA512
 Architectures: all amd64
 Codename: stable
 Components: main
-Date: Mon, 16 Nov 2026 23:30:54 +0000
+Date: Tue, 17 Nov 2026 09:28:50 +0000
 Description: Vigie, surveillance légère et alertes
 Label: Vigie
 Origin: Vigie
 Suite: stable
 MD5Sum:
- d41d8cd98f00b204e9800998ecf8427e                0 main/binary-all/Packages
- 4a4dd3598707603b3f76a2378a4504aa               20 main/binary-all/Packages.gz
- 509b09cdec1ef91d842cb7efb70e4701             3048 main/binary-amd64/Packages
- acfd8f313b04a0918de03900af3f0a1c              963 main/binary-amd64/Packages.gz
+ 754b7fc9b98fb6d52efb3055962cfd21              587 main/binary-all/Packages
+ 4a837712d52cb0539d5d14d5b3cdbd43              442 main/binary-all/Packages.gz
+ 819cab4e6ee0501c95ca772fc69c96a8             4665 main/binary-amd64/Packages
+ fb6ff708d59e50440c549aaa543d0b41             1355 main/binary-amd64/Packages.gz
 SHA1:
- da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-all/Packages
- a0fddd5458378c1bf3c10dd2f5c060d1347741ed               20 main/binary-all/Packages.gz
- 6ef1a6ef5a44f8e87b6fde82166e8cdfea7f3d39             3048 main/binary-amd64/Packages
- f46567e957ba4e924a98868f816a7afdf05ac8e9              963 main/binary-amd64/Packages.gz
+ fab15ac7f3cec542f102ab6acf7397cca4387073              587 main/binary-all/Packages
+ 94798621fa0bfb17774098e8b1df65c8c7df80a7              442 main/binary-all/Packages.gz
+ 2c93221390dd76608447757d0d0bc965e194010a             4665 main/binary-amd64/Packages
+ 4304b23910eb301b98b9d174abee8d7224da4818             1355 main/binary-amd64/Packages.gz
 SHA256:
- e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-all/Packages
- f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec               20 main/binary-all/Packages.gz
- 463affd29d25133f2784d0947696390e596faca889648af29ec53e884c3019bf             3048 main/binary-amd64/Packages
- 21e9fb651074a11e05805d361a3df59b24baa59e632242466d31cd93b14452cd              963 main/binary-amd64/Packages.gz
+ 77b6d572dc250515133becf7d69e5727315ca53dca564930494a3347b67e1e8e              587 main/binary-all/Packages
+ 85bd56451c567c537fa0b6544a5d8c7c3e001c98f5ab5da5349d8db03092b68b              442 main/binary-all/Packages.gz
+ ce2180f71f037486d994450d37cf3ef6b1a9025d6d97a25faf82c95a67372893             4665 main/binary-amd64/Packages
+ 26ea2d19a255044f0d19cf65c3a1add37e2f733c61578a023576dc0fb5dad199             1355 main/binary-amd64/Packages.gz
 SHA512:
- cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e                0 main/binary-all/Packages
- 1b46b9b08d5b338be9d732a1724795b2eab63daffde377218727c90857b79fe6a47bceed495117fcde60f7339812ef75ef4c69f82dd79fb69b6cbf8006b521f2               20 main/binary-all/Packages.gz
- ff2db2d86dfbbe8244e3225716069c7d99ad1b2a1f68c81dc03013765325725285181b55f8629045a30a582917faf5dde8d96272130b212a8ec9eb6964272b35             3048 main/binary-amd64/Packages
- 6d588418f59aa741ffdd8025434bf112c2d0ca20d9d7763eab2384a62bce133584e352dac66bf47431681958b52c6b81f465715f31687077f957045c1bd0d282              963 main/binary-amd64/Packages.gz
+ a9e20847b96b0d61bf6c20015e5e3ed6b72dc31af4f4c0bff5e25958bedf6abf9a54444c5dfd1b1a7bedf597ab96f57e32433f33603a3343e14ff823323dff50              587 main/binary-all/Packages
+ f1b4eb704e982da11ab6e66ad9285e19b750132bfb3dc0c2d02d65b03e2e6d001c8062426f702f2b717ece02d5de13030bd1e9ef8aae990378befa9b50a7c417              442 main/binary-all/Packages.gz
+ 74a75c18f34ec62e6b10b986b8d7e401073416e9a2d324ddb3d44eba3330e94bfe3f33d1ab4466906613728411d3c10790a066a4f5cfac372a9760b8f44d0f76             4665 main/binary-amd64/Packages
+ b7ac0cef125775ee6ceb78194ca251a000be21dd4390e38e6039fdbab3d3c9091e3e8b17d53f4fbd520a243fcffd03028c94aad8d1fa5a6c56d9703d304c3ad2             1355 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQQ0KfXbPt5Tmo2+HhpNqJKumHBJywUCavuSLgAKCRBNqJKumHBJ
-y7SlAQCCBHhxTg5AHmPgLv0DOMREC3sjKiQYenl6fIyLwUSbQgEA+yB+Q0CmrRaX
-c0Oh8j/BoN4rlT6AgBhyS7OecbJhfgE=
-=zkNH
+iHUEARYKAB0WIQQ0KfXbPt5Tmo2+HhpNqJKumHBJywUCavweUgAKCRBNqJKumHBJ
+y32zAQC8yEFy4jQl5UpClQ225ADD/3Kz90t1cpk1BEjwXen0CwD7BxIwo855BHmp
+MKB+8Gv1udzU5yTKt+xnFFHLHOHCrwo=
+=JzU1
 -----END PGP SIGNATURE-----
