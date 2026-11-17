@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Construit dist/vigie_<version>_amd64.deb (binaire, service systemd utilisateur, source APT et clé
-# du dépôt), les sommes SHA-256, puis passe lintian.
+# Construit dist/vigie_<version>_amd64.deb (binaire, service systemd utilisateur), les sommes SHA-256,
+# puis passe lintian. Depuis la 0.3.1, la source APT vient du dépôt unique (Depends: mawena-depot).
 # Usage : scripts/construire-deb.sh   (les tests se lancent à part : cargo test)
 set -euo pipefail
 
@@ -21,15 +21,12 @@ trap 'rm -rf "$CONSTR"' EXIT
 rm -rf dist && mkdir -p dist
 
 P="$CONSTR/vigie"
-install -d "$P/DEBIAN" "$P/usr/bin" "$P/usr/lib/systemd/user" "$P/etc/apt/sources.list.d" \
-  "$P/usr/share/keyrings" "$P/usr/share/doc/vigie" "$P/usr/share/lintian/overrides"
+install -d "$P/DEBIAN" "$P/usr/bin" "$P/usr/lib/systemd/user" "$P/usr/share/doc/vigie" \
+  "$P/usr/share/lintian/overrides"
 install -m 755 target/release/vigie "$P/usr/bin/"
 install -m 644 deploiement/vigie.service "$P/usr/lib/systemd/user/"
-install -m 644 paquets/apt/vigie.sources "$P/etc/apt/sources.list.d/"
-install -m 644 paquets/apt/vigie.gpg "$P/usr/share/keyrings/"
 install -m 644 exemples/vigie.toml "$P/usr/share/doc/vigie/vigie.toml.exemple"
 [ ! -f deploiement/nginx-vigie.conf ] || install -m 644 deploiement/nginx-vigie.conf "$P/usr/share/doc/vigie/"
-echo /etc/apt/sources.list.d/vigie.sources > "$P/DEBIAN/conffiles"
 
 # Licence et journal Debian
 {
@@ -48,14 +45,19 @@ echo /etc/apt/sources.list.d/vigie.sources > "$P/DEBIAN/conffiles"
 printf 'vigie (%s) stable; urgency=medium\n\n  * Version %s, voir le journal des versions :\n    https://github.com/mawena/Vigie/blob/main/CHANGELOG.md\n\n -- %s  %s\n' \
   "$VERSION" "$VERSION" "$MAINTENEUR" "$DATE" | gzip -9n > "$P/usr/share/doc/vigie/changelog.gz"
 
-# C'est voulu : le paquet installe la source APT de son dépôt pour qu'apt upgrade le suive.
-printf 'vigie: %s\n' "package-installs-apt-sources [etc/apt/sources.list.d/vigie.sources]" \
+# Voulu : rm_conffile de l'ancienne source sans debhelper.
+printf 'vigie: %s\n' "maintainer-script-should-not-use-dpkg-maintscript-helper" \
   > "$P/usr/share/lintian/overrides/vigie"
 
+# Passage au dépôt unique (0.3.1) : retrait propre de l'ancienne source, qui était un conffile.
+RM_CONFFILE='dpkg-maintscript-helper rm_conffile /etc/apt/sources.list.d/vigie.sources 0.3.1~ -- "$@"'
+for s in preinst postrm; do
+  printf '#!/bin/sh\nset -e\n%s\n' "$RM_CONFFILE" > "$P/DEBIAN/$s"
+  chmod 755 "$P/DEBIAN/$s"
+done
+
 # Après installation : rappeler comment démarrer le service (unité utilisateur, sans root).
-cat > "$P/DEBIAN/postinst" <<'EOF'
-#!/bin/sh
-set -e
+{ printf '#!/bin/sh\nset -e\n%s\n' "$RM_CONFFILE"; cat <<'EOF'
 if [ "$1" = configure ] && [ -z "$2" ]; then
   echo "Vigie installé. Pour chaque utilisateur qui surveille la machine :"
   echo "  vigie config-exemple > ~/.config/vigie/vigie.toml   # puis l'adapter"
@@ -64,6 +66,7 @@ if [ "$1" = configure ] && [ -z "$2" ]; then
 fi
 exit 0
 EOF
+} > "$P/DEBIAN/postinst"
 chmod 755 "$P/DEBIAN/postinst"
 
 glibc="$(objdump -T target/release/vigie | grep -o 'GLIBC_[0-9.]*' | sed 's/GLIBC_//' | sort -V | tail -1)"
@@ -74,7 +77,7 @@ Version: $VERSION
 Architecture: $ARCH
 Maintainer: $MAINTENEUR
 Installed-Size: $taille
-Depends: libc6 (>= $glibc), libgcc-s1
+Depends: libc6 (>= $glibc), libgcc-s1, mawena-depot
 Suggests: docker.io, libvirt-clients
 Section: admin
 Priority: optional
