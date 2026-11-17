@@ -80,6 +80,31 @@ puis recopier l'empreinte dans `mot_de_passe` de `[web]` et redémarrer
 (`systemctl --user restart vigie`). Sans mot de passe, Vigie refuse d'écouter ailleurs que sur
 127.0.0.1. API : `GET /api/etat` (dernière tournée), `GET /api/serie?cle=disque:/&jours=7`.
 
+### Mode Portier
+
+Derrière [Portier](https://portier.mawena.cloud) (connexion unique et double facteur), Vigie
+peut se passer de HTTP Basic. Section `[portier]` de `vigie.toml`, désactivée par défaut :
+
+```toml
+[portier]
+actif = true
+utilisateurs = ["charles-gamligo"]
+url = "https://portier.mawena.cloud"            # facultatif
+# deconnexion = "https://portier.mawena.cloud/" # facultatif, par défaut <url>/
+```
+
+- Une requête est acceptée sans mot de passe si elle vient de `127.0.0.1` ou `::1` (nginx sur la
+  même machine) avec **un seul** en-tête `X-Portier-Utilisateur` dont la valeur figure dans
+  `utilisateurs`. Sinon, HTTP Basic comme avant : rien ne casse si Portier ou nginx sont retirés.
+- Avec `url`, la page 401 propose « Se connecter via Portier »
+  (`<url>/connexion?retour=<adresse demandée>`, reconstruite depuis `Host` et
+  `X-Forwarded-Proto`).
+- Entré par Portier, le pied de page montre « Se déconnecter », qui renvoie vers `deconnexion`
+  (ou `<url>/`).
+- **N'activer qu'une fois nginx configuré** : chaque `location` du site inclut
+  `snippets/portier-proteger.conf` (qui écrase l'en-tête), sans quoi un client pourrait le
+  forger. Contrat complet : `docs/integration.md` du projet Portier.
+
 ### Autres machines (Ricochet)
 
 Si les machines font tourner l'agent de Ricochet, Vigie lit leur état sur le relais avec un
@@ -119,6 +144,7 @@ les unités systemd en échec et les conteneurs Docker malades. Modèle comment�
 | `[ntfy]` `[telegram]` `[courriel]` | canaux d'alerte |
 | `[historique]` | `actif`, `pas` (secondes), `garder_jours`, `fichier` |
 | `[web]` | `actif`, `adresse`, `utilisateur`, `mot_de_passe` (empreinte) |
+| `[portier]` | `actif`, `utilisateurs`, `url`, `deconnexion` (mode Portier, voir plus haut) |
 
 Le fichier contient des secrets (sujet ntfy, jeton Telegram) : droits `600`.
 

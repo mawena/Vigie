@@ -179,7 +179,7 @@ fn surveiller(c: Config) -> ExitCode {
     if c.web.actif {
         if historique.is_none() {
             eprintln!("tableau de bord désactivé : il lit l'historique");
-        } else if let Err(e) = web::lancer(&c.web, c.nom.clone(), c.fichier_historique(), partage.clone()) {
+        } else if let Err(e) = web::lancer(&c.web, &c.portier, c.nom.clone(), c.fichier_historique(), partage.clone()) {
             eprintln!("tableau de bord désactivé : {e}");
         }
     }

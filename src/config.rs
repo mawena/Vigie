@@ -28,6 +28,7 @@ pub struct Config {
     pub courriel: Option<Courriel>,
     pub historique: Historique,
     pub web: Web,
+    pub portier: Portier,
 }
 
 impl Default for Config {
@@ -53,6 +54,7 @@ impl Default for Config {
             courriel: None,
             historique: Historique::default(),
             web: Web::default(),
+            portier: Portier::default(),
         }
     }
 }
@@ -312,6 +314,34 @@ impl Default for Web {
     }
 }
 
+/// Mode Portier (docs d'intégration de Portier) : derrière nginx + Portier, l'utilisateur
+/// annoncé par l'en-tête `X-Portier-Utilisateur` est cru s'il vient de 127.0.0.1/::1 et figure
+/// dans `utilisateurs`. Désactivé par défaut ; sinon, HTTP Basic comme avant.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct Portier {
+    pub actif: bool,
+    pub utilisateurs: Vec<String>,
+    /// Adresse publique de Portier (ex. https://portier.mawena.cloud) : lien « Se connecter via
+    /// Portier » sur la page 401, et déconnexion par défaut (`<url>/`). Facultative.
+    pub url: String,
+    /// Adresse du bouton « Se déconnecter » ; par défaut `<url>/`. Facultative.
+    pub deconnexion: String,
+}
+
+impl Portier {
+    /// Adresse de déconnexion : `deconnexion`, sinon `<url>/`, sinon rien.
+    pub fn adresse_deconnexion(&self) -> Option<String> {
+        if !self.deconnexion.is_empty() {
+            Some(self.deconnexion.clone())
+        } else if !self.url.is_empty() {
+            Some(format!("{}/", self.url.trim_end_matches('/')))
+        } else {
+            None
+        }
+    }
+}
+
 impl Config {
     pub fn lire(chemin: &Path) -> Result<Config, String> {
         let texte = std::fs::read_to_string(chemin).map_err(|e| format!("{} : {e}", chemin.display()))?;
@@ -343,6 +373,14 @@ impl Config {
         }
         if !self.web.mot_de_passe.is_empty() && (self.web.mot_de_passe.len() != 64 || hex::decode(&self.web.mot_de_passe).is_err()) {
             return Err("web.mot_de_passe : empreinte SHA-256 attendue (vigie mot-de-passe)".into());
+        }
+        if self.portier.actif && self.portier.utilisateurs.iter().all(|u| u.trim().is_empty()) {
+            return Err("portier.utilisateurs : au moins un utilisateur attendu quand portier.actif = true".into());
+        }
+        for (nom, v) in [("url", &self.portier.url), ("deconnexion", &self.portier.deconnexion)] {
+            if !v.is_empty() && !v.starts_with("https://") {
+                return Err(format!("portier.{nom} : https:// attendu"));
+            }
         }
         Ok(())
     }
@@ -415,5 +453,18 @@ mod tests {
         assert!(Config::depuis_texte("intervalle = 1").is_err());
         assert!(Config::depuis_texte("[[http]]\nnom = \"x\"\nurl = \"ftp://x\"").is_err());
         assert!(Config::depuis_texte("[web]\nmot_de_passe = \"abc\"").is_err());
+        assert!(Config::depuis_texte("[portier]\nactif = true").is_err());
+        assert!(Config::depuis_texte("[portier]\nactif = true\nutilisateurs = [\"a\"]\ndeconnexion = \"http://x\"").is_err());
+    }
+
+    #[test]
+    fn portier() {
+        assert!(!Config::depuis_texte("").unwrap().portier.actif);
+        let c = Config::depuis_texte("[portier]\nactif = true\nutilisateurs = [\"charles-gamligo\"]\ndeconnexion = \"https://portier.mawena.cloud/\"").unwrap();
+        assert!(c.portier.actif && c.portier.utilisateurs == ["charles-gamligo"]);
+        assert_eq!(c.portier.adresse_deconnexion().unwrap(), "https://portier.mawena.cloud/");
+        let c = Config::depuis_texte("[portier]\nactif = true\nutilisateurs = [\"a\"]\nurl = \"https://portier.mawena.cloud/\"").unwrap();
+        assert_eq!(c.portier.adresse_deconnexion().unwrap(), "https://portier.mawena.cloud/");
+        assert!(Config::depuis_texte("[portier]\nactif = true\nutilisateurs = [\"a\"]\nurl = \"http://x\"").is_err());
     }
 }

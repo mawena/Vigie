@@ -1,11 +1,12 @@
 //! Tableau de bord web léger : une page lisible sur téléphone, une API JSON.
-//! Un seul fil, HTTP sans TLS (nginx devant), mot de passe en HTTP Basic.
+//! Un seul fil, HTTP sans TLS (nginx devant), mot de passe en HTTP Basic, ou mode Portier
+//! (en-tête `X-Portier-Utilisateur` posé par nginx, cru seulement depuis 127.0.0.1/::1).
 
-use crate::config::Web;
+use crate::config::{Portier, Web};
 use crate::historique::{Historique, jours_avant_plein};
 use crate::modele::{Mesure, Niveau, maintenant, nombre};
 use sha2::{Digest, Sha256};
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tiny_http::{Header, Request, Response, Server};
@@ -24,14 +25,25 @@ const SCRIPT: &str = include_str!("web/app.js");
 const ICONE: &str = include_str!("../site/icone.svg");
 
 /// Démarre le serveur dans un fil. Refuse d'écouter hors de 127.0.0.1 sans mot de passe.
-pub fn lancer(c: &Web, nom: String, fichier: PathBuf, partage: Partage) -> Result<(), String> {
+pub fn lancer(c: &Web, p: &Portier, nom: String, fichier: PathBuf, partage: Partage) -> Result<(), String> {
     let adresse: SocketAddr = c.adresse.parse().map_err(|e| format!("web.adresse « {} » : {e}", c.adresse))?;
     if c.mot_de_passe.is_empty() && !adresse.ip().is_loopback() {
         return Err("web : sans mot de passe, le tableau de bord n'écoute que sur 127.0.0.1".into());
     }
     let serveur = Server::http(adresse).map_err(|e| format!("web {adresse} : {e}"))?;
     let historique = Historique::ouvrir(&fichier)?;
-    let acces = Acces { utilisateur: c.utilisateur.clone(), empreinte: c.mot_de_passe.to_lowercase() };
+    let acces = Acces {
+        utilisateur: c.utilisateur.clone(),
+        empreinte: c.mot_de_passe.to_lowercase(),
+        portier: p.actif.then(|| ModePortier {
+            utilisateurs: p.utilisateurs.iter().map(|u| u.trim().to_string()).filter(|u| !u.is_empty()).collect(),
+            url: p.url.trim_end_matches('/').to_string(),
+            deconnexion: p.adresse_deconnexion(),
+        }),
+    };
+    if p.actif {
+        eprintln!("mode Portier actif ({} utilisateur(s) autorisé(s))", p.utilisateurs.len());
+    }
     eprintln!("tableau de bord sur http://{adresse}");
     std::thread::Builder::new()
         .name("web".into())
@@ -47,9 +59,34 @@ pub fn lancer(c: &Web, nom: String, fichier: PathBuf, partage: Partage) -> Resul
 struct Acces {
     utilisateur: String,
     empreinte: String,
+    /// Mode Portier, si `[portier] actif = true`.
+    portier: Option<ModePortier>,
 }
 
+struct ModePortier {
+    utilisateurs: Vec<String>,
+    /// Adresse publique de Portier sans « / » final (vide : pas de lien de connexion).
+    url: String,
+    deconnexion: Option<String>,
+}
+
+const ENTETE_PORTIER: &str = "X-Portier-Utilisateur";
+
 impl Acces {
+    /// Mode Portier : option active, connexion venue de 127.0.0.1/::1 (nginx local), un seul
+    /// en-tête `X-Portier-Utilisateur` dont la valeur est dans la liste des utilisateurs.
+    fn autorise_portier(&self, ip: Option<IpAddr>, valeurs: &[&str]) -> bool {
+        let Some(p) = &self.portier else { return false };
+        let locale = match ip {
+            Some(IpAddr::V4(v4)) => v4 == std::net::Ipv4Addr::LOCALHOST,
+            Some(IpAddr::V6(v6)) => v6.is_loopback() || v6.to_ipv4_mapped() == Some(std::net::Ipv4Addr::LOCALHOST),
+            None => false,
+        };
+        let [nom] = valeurs else { return false };
+        let nom = nom.trim();
+        locale && !nom.is_empty() && p.utilisateurs.iter().any(|u| u == nom)
+    }
+
     fn autorise(&self, entete: Option<&str>) -> bool {
         if self.empreinte.is_empty() {
             return true;
@@ -79,11 +116,22 @@ fn entete(nom: &str, valeur: &str) -> Header {
 fn repondre(req: Request, acces: &Acces, nom: &str, h: &Historique, partage: &Partage) {
     let url = req.url().to_string();
     let (chemin, requete) = url.split_once('?').unwrap_or((&url, ""));
-    let auth = req.headers().iter().find(|x| x.field.equiv("Authorization")).map(|x| x.value.as_str().to_string());
-    let (code, type_, corps) = if !acces.autorise(auth.as_deref()) {
-        let r = Response::from_string("Identification requise")
+    let valeur = |nom: &'static str| req.headers().iter().find(|x| x.field.equiv(nom)).map(|x| x.value.as_str().to_string());
+    let auth = valeur("Authorization");
+    let portier: Vec<&str> = req.headers().iter().filter(|x| x.field.equiv(ENTETE_PORTIER)).map(|x| x.value.as_str()).collect();
+    let par_portier = acces.autorise_portier(req.remote_addr().map(|a| a.ip()), &portier);
+    let (code, type_, corps) = if !par_portier && !acces.autorise(auth.as_deref()) {
+        let mut r = Response::from_string("Identification requise")
             .with_status_code(401)
             .with_header(entete("WWW-Authenticate", "Basic realm=\"Vigie\", charset=\"UTF-8\""));
+        if let Some(lien) = acces.portier.as_ref().and_then(|p| lien_connexion(p, valeur("Host").as_deref(), valeur("X-Forwarded-Proto").as_deref(), &url)) {
+            r = Response::from_string(page_401(&lien))
+                .with_status_code(401)
+                .with_header(entete("WWW-Authenticate", "Basic realm=\"Vigie\", charset=\"UTF-8\""))
+                .with_header(entete("Content-Type", "text/html; charset=utf-8"))
+                .with_header(entete("Cache-Control", "no-store"))
+                .with_header(entete("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'"));
+        }
         let _ = req.respond(r);
         return;
     } else {
@@ -91,7 +139,8 @@ fn repondre(req: Request, acces: &Acces, nom: &str, h: &Historique, partage: &Pa
             ("GET", "/") => {
                 let jours = parametre(requete, "jours").and_then(|j| j.parse::<i64>().ok()).filter(|j| [1, 7, 30].contains(j)).unwrap_or(1);
                 let etat = partage.lock().map(|e| (e.t, e.mesures.clone())).unwrap_or_default();
-                (200, "text/html; charset=utf-8", page(nom, etat.0, &etat.1, h, jours))
+                let deconnexion = if par_portier { acces.portier.as_ref().and_then(|p| p.deconnexion.as_deref()) } else { None };
+                (200, "text/html; charset=utf-8", page(nom, etat.0, &etat.1, h, jours, deconnexion))
             }
             ("GET", "/api/etat") => {
                 let e = partage.lock().map(|e| (e.t, e.mesures.clone())).unwrap_or_default();
@@ -121,6 +170,40 @@ fn repondre(req: Request, acces: &Acces, nom: &str, h: &Historique, partage: &Pa
         .with_header(entete("Referrer-Policy", "no-referrer"))
         .with_header(entete("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"));
     let _ = req.respond(r);
+}
+
+/// Lien « Se connecter via Portier » : `<url>/connexion?retour=<adresse demandée, encodée>`.
+/// L'adresse demandée est reconstruite depuis Host et X-Forwarded-Proto (posés par nginx) ;
+/// Portier ne suit de toute façon que les retours de son domaine.
+fn lien_connexion(p: &ModePortier, hote: Option<&str>, proto: Option<&str>, chemin: &str) -> Option<String> {
+    if p.url.is_empty() {
+        return None;
+    }
+    let hote = hote.map(str::trim).filter(|h| !h.is_empty() && !h.contains(['/', '\\', '@', ' ']))?;
+    let proto = if proto.map(str::trim) == Some("http") { "http" } else { "https" };
+    let chemin = if chemin.starts_with('/') { chemin } else { "/" };
+    Some(format!("{}/connexion?retour={}", p.url, encoder(&format!("{proto}://{hote}{chemin}"))))
+}
+
+/// Encodage en pourcentage (tout sauf les caractères non réservés).
+fn encoder(s: &str) -> String {
+    s.bytes()
+        .map(|b| match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => (b as char).to_string(),
+            _ => format!("%{b:02X}"),
+        })
+        .collect()
+}
+
+/// Page de la réponse 401 en mode Portier : HTTP Basic reste possible, lien vers Portier.
+fn page_401(lien: &str) -> String {
+    format!(
+        "<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\">\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Identification requise — Vigie</title></head>\
+<body style=\"font-family:system-ui,sans-serif;max-width:32rem;margin:3rem auto;padding:0 1rem;line-height:1.5\">\
+<h1>Identification requise</h1><p><a href=\"{}\" style=\"display:inline-block;padding:.6rem 1rem;border-radius:.4rem;background:#1f5fbf;color:#fff;text-decoration:none\">Se connecter via Portier</a></p></body></html>",
+        echapper(lien)
+    )
 }
 
 /// Valeur d'un paramètre de requête (décodage %XX et +).
@@ -167,7 +250,7 @@ fn marque(n: Niveau) -> (&'static str, &'static str, &'static str) {
     }
 }
 
-fn page(nom: &str, t: i64, mesures: &[Mesure], h: &Historique, jours: i64) -> String {
+fn page(nom: &str, t: i64, mesures: &[Mesure], h: &Historique, jours: i64, deconnexion: Option<&str>) -> String {
     let global = mesures.iter().map(|m| m.niveau).max().unwrap_or(Niveau::Ok);
     let (classe, icone, libelle) = marque(global);
     let problemes: Vec<&Mesure> = {
@@ -279,8 +362,9 @@ fn page(nom: &str, t: i64, mesures: &[Mesure], h: &Historique, jours: i64) -> St
         s.push_str("</ul>");
     }
     s.push_str(&format!(
-        "</section><footer class=\"pied\">Vigie {} — <a href=\"/api/etat\">état en JSON</a></footer></main></body></html>",
-        env!("CARGO_PKG_VERSION")
+        "</section><footer class=\"pied\">Vigie {} — <a href=\"/api/etat\">état en JSON</a>{}</footer></main></body></html>",
+        env!("CARGO_PKG_VERSION"),
+        deconnexion.map(|d| format!(" — <a href=\"{}\">Se déconnecter</a>", echapper(d))).unwrap_or_default()
     ));
     s
 }
@@ -363,14 +447,80 @@ mod tests {
 
     #[test]
     fn mot_de_passe() {
-        let a = Acces { utilisateur: "charles".into(), empreinte: empreinte("secret") };
+        let a = Acces { utilisateur: "charles".into(), empreinte: empreinte("secret"), portier: None };
         use base64::Engine;
         let b = |s: &str| format!("Basic {}", base64::engine::general_purpose::STANDARD.encode(s));
         assert!(a.autorise(Some(&b("charles:secret"))));
         assert!(!a.autorise(Some(&b("charles:faux"))));
         assert!(!a.autorise(Some(&b("autre:secret"))));
         assert!(!a.autorise(None));
-        assert!(Acces { utilisateur: "x".into(), empreinte: String::new() }.autorise(None));
+        assert!(Acces { utilisateur: "x".into(), empreinte: String::new(), portier: None }.autorise(None));
+    }
+
+    fn acces_portier(actif: bool) -> Acces {
+        Acces {
+            utilisateur: "charles".into(),
+            empreinte: empreinte("secret"),
+            portier: actif.then(|| ModePortier {
+                utilisateurs: vec!["charles-gamligo".into()],
+                url: "https://portier.mawena.cloud".into(),
+                deconnexion: Some("https://portier.mawena.cloud/".into()),
+            }),
+        }
+    }
+
+    #[test]
+    fn portier_entete_accepte() {
+        let a = acces_portier(true);
+        assert!(a.autorise_portier(Some("127.0.0.1".parse().unwrap()), &["charles-gamligo"]));
+        assert!(a.autorise_portier(Some("::1".parse().unwrap()), &["charles-gamligo"]));
+        assert!(a.autorise_portier(Some("::ffff:127.0.0.1".parse().unwrap()), &["charles-gamligo"]));
+    }
+
+    #[test]
+    fn portier_nom_hors_liste() {
+        let a = acces_portier(true);
+        let ip = Some("127.0.0.1".parse().unwrap());
+        assert!(!a.autorise_portier(ip, &["intrus"]));
+        assert!(!a.autorise_portier(ip, &[""]));
+        assert!(!a.autorise_portier(ip, &[]));
+        // Deux en-têtes : refusé, même si l'un est bon.
+        assert!(!a.autorise_portier(ip, &["charles-gamligo", "intrus"]));
+    }
+
+    #[test]
+    fn portier_ip_non_locale() {
+        let a = acces_portier(true);
+        for ip in ["192.0.2.10", "10.0.0.1", "127.0.0.2", "2001:db8::1"] {
+            assert!(!a.autorise_portier(Some(ip.parse().unwrap()), &["charles-gamligo"]), "{ip}");
+        }
+        assert!(!a.autorise_portier(None, &["charles-gamligo"]));
+    }
+
+    #[test]
+    fn portier_desactive() {
+        let a = acces_portier(false);
+        assert!(!a.autorise_portier(Some("127.0.0.1".parse().unwrap()), &["charles-gamligo"]));
+        // HTTP Basic inchangé.
+        use base64::Engine;
+        assert!(a.autorise(Some(&format!("Basic {}", base64::engine::general_purpose::STANDARD.encode("charles:secret")))));
+        assert!(!a.autorise(None));
+    }
+
+    #[test]
+    fn portier_lien_connexion() {
+        let a = acces_portier(true);
+        let p = a.portier.as_ref().unwrap();
+        assert_eq!(
+            lien_connexion(p, Some("vigie.mawena.cloud"), Some("https"), "/?jours=7").unwrap(),
+            "https://portier.mawena.cloud/connexion?retour=https%3A%2F%2Fvigie.mawena.cloud%2F%3Fjours%3D7"
+        );
+        assert!(lien_connexion(p, None, None, "/").is_none());
+        assert!(lien_connexion(p, Some("x@y"), None, "/").is_none());
+        let sans_url = ModePortier { utilisateurs: vec![], url: String::new(), deconnexion: None };
+        assert!(lien_connexion(&sans_url, Some("vigie.mawena.cloud"), None, "/").is_none());
+        assert!(page_401("https://p/connexion?retour=a&b").contains("Se connecter via Portier") );
+        assert!(page_401("x&y").contains("x&amp;y"));
     }
 
     #[test]
@@ -392,8 +542,11 @@ mod tests {
             Mesure::new("disque:/", "Disque", "/").valeur("50 %").metrique(50.0),
             Mesure::new("http:<x>", "Web", "<x>").niveau(Niveau::Critique).valeur("injoignable"),
         ];
-        let p = page("vps", 1, &m, &h, 1);
+        let p = page("vps", 1, &m, &h, 1, None);
         assert!(p.contains("Critique") && p.contains("&lt;x&gt;") && !p.contains("<x>"));
+        assert!(!p.contains("Se déconnecter"));
+        let p = page("vps", 1, &m, &h, 1, Some("https://portier.mawena.cloud/"));
+        assert!(p.contains("<a href=\"https://portier.mawena.cloud/\">Se déconnecter</a>"));
         let c = courbe(&[(0, 10.0), (60, 20.0)], true, "disque");
         assert!(c.contains("<path class=\"ligne\""));
         drop(h);
