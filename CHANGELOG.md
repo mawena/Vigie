@@ -3,6 +3,19 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions
 [SemVer](https://semver.org/lang/fr/).
 
+## [0.4.0] — 2026-11-17
+
+Mode Portier.
+
+### Ajouté
+- Section `[portier]` (`actif`, `utilisateurs`, `url`, `deconnexion`), désactivée par défaut :
+  derrière nginx et Portier, une requête venue de 127.0.0.1/::1 avec un seul en-tête
+  `X-Portier-Utilisateur` dont la valeur est dans `utilisateurs` passe sans HTTP Basic. Sinon,
+  HTTP Basic comme avant.
+- Page 401 avec un bouton « Se connecter via Portier »
+  (`<url>/connexion?retour=<adresse demandée>`) quand `url` est renseignée.
+- Lien « Se déconnecter » dans le pied de page en mode Portier (`deconnexion`, sinon `<url>/`).
+
 ## [0.3.1] — 2026-11-17
 
 Passage au dépôt APT unique.
