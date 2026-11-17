@@ -6,8 +6,8 @@ Rust. Créé le 16/11/2026. Lire `README.md` et `ROADMAP.md`.
 ## Où on en est
 - Version 0.3.0 (17/11/2026) : phases 0 à 4 faites. En ligne sur https://vigie.mawena.cloud
   (HTTP Basic, utilisateur charles), Ricochet branché (VPS en `toujours_en_ligne`).
-- Dépôt GitHub privé : git@github.com:mawena/Vigie.git. Branche gh-pages prête, Pages refusé
-  tant que le dépôt est privé.
+- Dépôt GitHub public : git@github.com:mawena/Vigie.git. Site et dépôt APT sur GitHub Pages
+  (https://mawena.github.io/Vigie/, branche gh-pages).
 - En service sur le VPS : `~/.local/bin/vigie`, unité `~/.config/systemd/user/vigie.service`,
   config `~/.config/vigie/vigie.toml` (600), historique `~/.local/share/vigie/`. Pour
   redéployer : `cargo build --release`, copier le binaire, `systemctl --user restart vigie`

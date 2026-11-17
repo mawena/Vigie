@@ -19,7 +19,7 @@
 - [x] Canaux : ntfy, Telegram, e-mail
 - [x] Service systemd utilisateur, consommation mesurée (< 20 Mo de RAM : 12 Mo au plus haut)
 - [x] En service sur le VPS (17/11/2026), alertes ntfy vérifiées
-- [x] Release 0.1.0 : `.deb`, dépôt APT, release GitHub (Pages en attente : dépôt privé)
+- [x] Release 0.1.0 : `.deb`, dépôt APT, release GitHub
 
 ## Phase 3 — Tableau de bord
 - [x] Historique compact (SQLite), tendance de remplissage du disque
@@ -36,5 +36,5 @@
 ## Plus tard (idées)
 - [ ] Garder l'état des alertes au redémarrage (annoncer le retour à la normale d'un problème
       signalé avant un redémarrage)
-- [ ] Rendre le dépôt public (ou passer à une offre payante) pour servir le site et le dépôt APT
+- [x] Rendre le dépôt public pour servir le site et le dépôt APT (fait le 17/11/2026)
       par GitHub Pages
