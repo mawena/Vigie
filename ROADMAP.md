@@ -37,6 +37,13 @@
 - [x] `Depends: mawena-depot`, `rm_conffile` de l'ancienne source, plus de source ni de clé dans le paquet
 - [x] README et site : installation par https://apt.mawena.cloud
 
+## Phase 5 — Mode Portier (0.4.0)
+- [x] Section `[portier]` : en-tête `X-Portier-Utilisateur` cru depuis 127.0.0.1/::1, liste d'utilisateurs
+- [x] Bouton « Se connecter via Portier » sur la page 401, « Se déconnecter » vers Portier
+- [x] Tests unitaires (en-tête accepté, nom hors liste, IP non locale, option désactivée)
+- [x] Release 0.4.0
+- [ ] Activer sur le VPS une fois nginx configuré pour vigie.mawena.cloud (Charles)
+
 ## Plus tard (idées)
 - [ ] Garder l'état des alertes au redémarrage (annoncer le retour à la normale d'un problème
       signalé avant un redémarrage)

@@ -107,3 +107,14 @@ utilisateur = "vigie"
 # Empreinte du mot de passe, donnée par : vigie mot-de-passe
 # Sans mot de passe, le tableau de bord n'écoute que sur 127.0.0.1.
 mot_de_passe = ""
+
+# Mode Portier (https://portier.mawena.cloud, connexion unique et double facteur devant nginx).
+# Activé, une requête venue de 127.0.0.1/::1 avec l'en-tête X-Portier-Utilisateur (posé par
+# nginx après vérification par Portier) dont la valeur est dans « utilisateurs » passe sans
+# HTTP Basic ; sinon HTTP Basic comme d'habitude. À n'activer qu'une fois nginx configuré
+# (snippets/portier-proteger.conf), sans quoi l'en-tête pourrait être forgé.
+[portier]
+actif = false
+utilisateurs = []        # ex. ["charles-gamligo"]
+# url = "https://portier.mawena.cloud"   # lien « Se connecter via Portier » sur la page 401
+# deconnexion = "https://portier.mawena.cloud/"   # par défaut : <url>/

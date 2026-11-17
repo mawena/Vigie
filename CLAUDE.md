@@ -4,8 +4,9 @@ Surveillance légère du VPS mawena.cloud et des machines de Charles, alertes su
 Rust. Créé le 16/11/2026. Lire `README.md` et `ROADMAP.md`.
 
 ## Où on en est
-- Version 0.3.1 (17/11/2026, passage au dépôt APT unique https://apt.mawena.cloud :
-  `Depends: mawena-depot`, `rm_conffile` de l'ancienne source) : phases 0 à 4 faites. En ligne sur https://vigie.mawena.cloud
+- Version 0.4.0 (17/11/2026, mode Portier : section `[portier]`, désactivée par défaut et pas
+  encore activée sur le VPS). 0.3.1 : passage au dépôt APT unique https://apt.mawena.cloud
+  (`Depends: mawena-depot`, `rm_conffile` de l'ancienne source). Phases 0 à 5 faites. En ligne sur https://vigie.mawena.cloud
   (HTTP Basic, utilisateur charles), Ricochet branché (VPS en `toujours_en_ligne`).
 - Dépôt GitHub public : git@github.com:mawena/Vigie.git. Site et dépôt APT sur GitHub Pages
   (https://mawena.github.io/Vigie/, branche gh-pages).

@@ -14,7 +14,7 @@ ARCH="$(dpkg --print-architecture)"
 MAINTENEUR="mawena <57989130+mawena@users.noreply.github.com>"
 DATE="$(date -R)"
 
-nice -n 10 cargo build --release --locked
+nice -n 10 cargo build --release --locked -j 2
 
 CONSTR="$(mktemp -d)"
 trap 'rm -rf "$CONSTR"' EXIT
