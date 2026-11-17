@@ -4,7 +4,8 @@ Surveillance légère du VPS mawena.cloud et des machines de Charles, alertes su
 Rust. Créé le 16/11/2026. Lire `README.md` et `ROADMAP.md`.
 
 ## Où on en est
-- Version 0.3.0 (17/11/2026) : phases 0 à 4 faites, reste ce qui demande root (voir ROADMAP).
+- Version 0.3.0 (17/11/2026) : phases 0 à 4 faites. En ligne sur https://vigie.mawena.cloud
+  (HTTP Basic, utilisateur charles), Ricochet branché (VPS en `toujours_en_ligne`).
 - Dépôt GitHub privé : git@github.com:mawena/Vigie.git. Branche gh-pages prête, Pages refusé
   tant que le dépôt est privé.
 - En service sur le VPS : `~/.local/bin/vigie`, unité `~/.config/systemd/user/vigie.service`,
