@@ -3,6 +3,19 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versions
 [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.1] — 2026-11-17
+
+Passage au dépôt APT unique.
+
+### Modifié
+- Le paquet dépend de `mawena-depot` (dépôt unique <https://apt.mawena.cloud>) et ne fournit
+  plus ni la source `/etc/apt/sources.list.d/vigie.sources` (retirée proprement par
+  `rm_conffile`) ni la clé `/usr/share/keyrings/vigie.gpg`. Un `sudo apt upgrade` suffit pour
+  passer au nouveau dépôt.
+- Installation : README et site passent par
+  `curl -fsSL https://apt.mawena.cloud/installer.sh | sudo sh -s -- vigie` ; l'ancien
+  `installer.sh` du site lance désormais celui du dépôt unique.
+
 ## [0.3.0] — 2026-11-17
 
 Plusieurs machines.
